@@ -200,7 +200,7 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
             break;
         default:
             printf("GLFW: Unimplemented API 0x%x\n", value);
-            abort();
+            //abort();
     }
 }
 
