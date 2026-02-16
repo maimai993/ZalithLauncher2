@@ -138,12 +138,12 @@ class GameLauncher(
     override fun getLogName(): String = LogName.GAME.fileName
 
     private fun setCustomEnv(envMap: MutableMap<String, String>) {
-      val customEnvFile = File(PathManager.DIR_HOME, "custom_env.txt")
+      val customEnvFile = File(PathManager.DIR_FILES_EXTERNAL, "custom_env.txt")
       if (customEnvFile.exists() && customEnvFile.isFile) {
           try {
               customEnvFile.bufferedReader().use { reader ->
                   reader.forEachLine { line ->
-                      val index = line.indexOf("=")
+                      val index = line.indexOf('=')
                       if (index > 0 && index < line.length - 1) {
                           val key = line.substring(0, index)
                           val value = line.substring(index + 1)
