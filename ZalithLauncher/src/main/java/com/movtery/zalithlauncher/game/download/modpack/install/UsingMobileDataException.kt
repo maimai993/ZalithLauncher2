@@ -16,11 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.crashlogs
+package com.movtery.zalithlauncher.game.download.modpack.install
 
 /**
- * API 站点返回的链接不可用、不存在
+ * 用户拒绝使用移动网络安装整合包
  */
-class LinkNotFoundException : RuntimeException(
-    "Unable to find an available link from the data returned by the remote end"
+class UsingMobileDataException: RuntimeException(
+    "Users do not want to install the modpack using mobile data."
 )

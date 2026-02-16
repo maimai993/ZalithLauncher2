@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.setting.enums
 
 import androidx.annotation.StringRes
@@ -9,22 +27,24 @@ enum class AppLanguage(
     val tag: String,
     @param:StringRes val textRes: Int
 ) {
+    //按语言代码字母顺序排序
     FOLLOW_SYSTEM("", R.string.generic_follow_system),
     ENGLISH("en", R.string.language_english),
-    SIMPLIFIED_CHINESE("zh-CN", R.string.language_simplified_chinese),
-    TRADITIONAL_CHINESE("zh-TW", R.string.language_traditional_chinese),
-    JAPANESE("ja", R.string.language_japanese),
-    RUSSIAN("ru", R.string.language_russian),
-    VIETNAMESE("vi", R.string.language_vietnamese),
-    INDONESIAN("id", R.string.language_indonesian),
-    TURKISH("tr", R.string.language_turkish),
-    SPANISH("es", R.string.language_spanish),
-    PORTUGUESE("pt", R.string.language_portuguese),
-    ARABIC("ar", R.string.language_arabic),
-    ITALIAN("it", R.string.language_italian),
     GERMAN("de", R.string.language_german),
     HUNGARIAN("hu", R.string.language_hungarian),
-    BRAZILIAN_PORTUGUESE("pt-BR", R.string.language_brazilian_portuguese)
+    INDONESIAN("id", R.string.language_indonesian),
+    ITALIAN("it", R.string.language_italian),
+    JAPANESE("ja", R.string.language_japanese),
+    PORTUGUESE("pt", R.string.language_portuguese),
+    BRAZILIAN_PORTUGUESE("pt-BR", R.string.language_brazilian_portuguese),
+    RUSSIAN("ru", R.string.language_russian),
+    SPANISH("es", R.string.language_spanish),
+    SIMPLIFIED_CHINESE("zh-CN", R.string.language_simplified_chinese),
+    TRADITIONAL_CHINESE("zh-TW", R.string.language_traditional_chinese),
+    ARABIC("ar", R.string.language_arabic),
+    TURKISH("tr", R.string.language_turkish),
+    UYGHUR("ug", R.string.language_uyghur),
+    VIETNAMESE("vi", R.string.language_vietnamese),
 }
 
 fun applyLanguage(language: AppLanguage) {

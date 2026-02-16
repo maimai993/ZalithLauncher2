@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
@@ -107,6 +125,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
@@ -123,6 +142,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1176,7 +1196,9 @@ private fun ServerEditDialog(
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
-                            onValueChange = { name = it },
+                            onValueChange = {
+                                name = it.toSingleLine()
+                            },
                             label = { Text(text = stringResource(R.string.servers_list_add_server_name)) },
                             singleLine = true,
                             shape = MaterialTheme.shapes.large
@@ -1184,10 +1206,17 @@ private fun ServerEditDialog(
 
                         Spacer(modifier = Modifier.size(8.dp))
 
+                        SingleLineTextCheck(
+                            text = ip,
+                            onSingleLined = { ip = it }
+                        )
+
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = ip,
-                            onValueChange = { ip = it },
+                            onValueChange = {
+                                ip = it.toSingleLine()
+                            },
                             isError = isIpEmpty,
                             label = { Text(text = stringResource(R.string.servers_list_add_server_ip)) },
                             supportingText = {
