@@ -63,7 +63,7 @@ LOCAL_MODULE := driver_helper
 LOCAL_SRC_FILES := \
     driver_helper/driver_helper.c \
     driver_helper/nsbypass.c
-LOCAL_CFLAGS += -g -rdynamic
+LOCAL_CFLAGS += -g -rdynamic -std=gnu23
 
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 LOCAL_CFLAGS += -DADRENO_POSSIBLE
