@@ -59,53 +59,73 @@ bool checkAdrenoGraphics() {
 }
 
 void* loadTurnipVulkan() {
-    if (!checkAdrenoGraphics())
-        return NULL;
+    /*if (!checkAdrenoGraphics())
+        return NULL;*/
 
     const char* native_dir = getenv("DRIVER_PATH");
     const char* cache_dir = getenv("TMPDIR");
 
-    if (!native_dir) 
-        return NULL;
+    if (!native_dir) { 
+        printf("driver_helper: no native_dir!");
+        return nullptr;
+    }
 
-    if (!linker_ns_load(native_dir))
-        return NULL;
+    if (!linker_ns_load(native_dir)) {
+        printf("driver_helper: failed to linker_ns_load.");
+        return nullptr;
+    }
 
     void* linkerhook = linker_ns_dlopen("liblinkerhook.so", RTLD_LOCAL | RTLD_NOW);
-    if (!linkerhook)
-        return NULL;
+    if (!linkerhook) {
+        printf("driver_helper: failed to dlopen linkerhook");
+        return nullptr;
+    }
 
-    void* turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
+    const char* driverEnv = getenv("ZALTITH_DRIVER");
+    void* turnip_driver_handle = nullptr;
+    if (!driverEnv && (!getenv("ZALITH_FORCE_CUSTOM_DRIVER") && checkAdrenoGraphics()) 
+    turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
+    else
+    turnip_driver_handle = linker_ns_dlopen(driverEnv, RTLD_LOCAL | RTLD_NOW);
+
     if (!turnip_driver_handle) {
+        printf("driver_helper: !turnip_driver_handle");
         dlclose(linkerhook);
-        return NULL;
+        return nullptr;
     }
 
     void* dl_android = linker_ns_dlopen("libdl_android.so", RTLD_LOCAL | RTLD_LAZY);
     if (!dl_android) {
+        printf("driver_helper: !dl_android");
         dlclose(linkerhook);
         dlclose(turnip_driver_handle);
-        return NULL;
+        return nullptr;
     }
 
     void* android_get_exported_namespace = dlsym(dl_android, "android_get_exported_namespace");
     void (*linkerhookPassHandles)(void*, void*, void*) = dlsym(linkerhook, "linker_hook_set_handles");
 
     if (!linkerhookPassHandles || !android_get_exported_namespace) {
+        printf("driver_helper: !linkerhookPassHandles or !android_get_exported_namespace");
         dlclose(dl_android);
         dlclose(linkerhook);
         dlclose(turnip_driver_handle);
-        return NULL;
+        return nullptr;
     }
 
     linkerhookPassHandles(turnip_driver_handle, android_dlopen_ext, android_get_exported_namespace);
 
-    void* libvulkan = linker_ns_dlopen_unique(cache_dir, "libvulkan.so", RTLD_LOCAL | RTLD_NOW);
+    void* libvulkan = nullptr;
+    libvulkan = linker_ns_dlopen_unique(cache_dir, "libvulkan.so", RTLD_LOCAL | RTLD_NOW);
     if (!libvulkan) {
+        if (!checkAdrenoGraphics()) {
+            printf("driver_helper: no libvulkan. Try libGLES_mali.so.");
+            libvulkan = linker_ns_dlopen_unique(cache_dir, "libGLES_mali.so", RTLD_LOCAL | RTLD_NOW);
+        }
         dlclose(dl_android);
         dlclose(linkerhook);
         dlclose(turnip_driver_handle);
-        return NULL;
+        return nullptr;
     }
 
     return libvulkan;
