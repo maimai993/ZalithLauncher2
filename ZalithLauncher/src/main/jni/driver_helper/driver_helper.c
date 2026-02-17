@@ -83,7 +83,7 @@ void* loadTurnipVulkan() {
 
     const char* driverEnv = getenv("ZALTITH_DRIVER");
     void* turnip_driver_handle = nullptr;
-    if (!driverEnv && (!getenv("ZALITH_FORCE_CUSTOM_DRIVER") && checkAdrenoGraphics())) 
+    if (!driverEnv && (!getenv("ZALITH_FORCE_CUSTOM_DRIVER") || !(checkAdrenoGraphics()))) 
     turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
     else
     turnip_driver_handle = linker_ns_dlopen(driverEnv, RTLD_LOCAL | RTLD_NOW);
