@@ -144,13 +144,6 @@ void* loadTurnipVulkan() {
         // 检查文件是否存在
         char full_path[512];
         snprintf(full_path, sizeof(full_path), "%s/%s", native_dir, driver_to_load ? driver_to_load : "unknown");
-        
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            printf("  文件存在: %s (大小: %ld bytes)\n", full_path, st.st_size);
-        } else {
-            printf("  文件不存在: %s (errno: %d - %s)\n", full_path, errno, strerror(errno));
-        }
 
         // 列出目录内容
         printf("\n目录 %s 内容:\n", native_dir);
@@ -181,13 +174,6 @@ void* loadTurnipVulkan() {
         
         char full_path[512];
         snprintf(full_path, sizeof(full_path), "%s/libdl_android.so", native_dir);
-        
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            printf("  文件存在: %s\n", full_path);
-        } else {
-            printf("  文件不存在: %s\n", full_path);
-        }
         
         const char* dlerror_msg = dlerror();
         printf("  dlerror: %s\n", dlerror_msg ? dlerror_msg : "unknown error");
@@ -241,13 +227,6 @@ void* loadTurnipVulkan() {
         // 检查文件是否存在
         char vulkan_path[512];
         snprintf(vulkan_path, sizeof(vulkan_path), "%s/libvulkan.so", cache_dir ? cache_dir : "/data/local/tmp");
-        
-        struct stat st;
-        if (stat(vulkan_path, &st) == 0) {
-            printf("  libvulkan.so 存在: %s\n", vulkan_path);
-        } else {
-            printf("  libvulkan.so 不存在: %s\n", vulkan_path);
-        }
 
         const char* dlerror_msg = dlerror();
         printf("  dlerror: %s\n", dlerror_msg ? dlerror_msg : "unknown");
@@ -260,12 +239,6 @@ void* loadTurnipVulkan() {
                 printf("错误: libGLES_mali.so 加载失败\n");
                 
                 snprintf(vulkan_path, sizeof(vulkan_path), "%s/libGLES_mali.so", cache_dir ? cache_dir : "/data/local/tmp");
-                
-                if (stat(vulkan_path, &st) == 0) {
-                    printf("  libGLES_mali.so 存在: %s\n", vulkan_path);
-                } else {
-                    printf("  libGLES_mali.so 不存在: %s\n", vulkan_path);
-                }
                 
                 dlerror_msg = dlerror();
                 printf("  dlerror: %s\n", dlerror_msg ? dlerror_msg : "unknown");
