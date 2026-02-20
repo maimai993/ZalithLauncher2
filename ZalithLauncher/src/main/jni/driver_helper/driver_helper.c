@@ -129,11 +129,11 @@ void* loadTurnipVulkan() {
     if (!driverEnv && (!forceCustom || !(checkAdrenoGraphics()))) {
         driver_to_load = "libvulkan_freedreno.so";
         printf("选择默认驱动: %s\n", driver_to_load);
-        turnip_driver_handle = linker_ns_dlopen(driver_to_load, RTLD_LOCAL | RTLD_NOW);
+        turnip_driver_handle = linker_ns_dlopen(driver_to_load, RTLD_GLOBAL | RTLD_NOW);
     } else {
         driver_to_load = driverEnv;
         printf("选择自定义驱动: %s\n", driver_to_load);
-        turnip_driver_handle = linker_ns_dlopen(driverEnv, RTLD_LOCAL | RTLD_NOW);
+        turnip_driver_handle = linker_ns_dlopen(driverEnv, RTLD_GLOBAL | RTLD_NOW);
     }
 
     if (!turnip_driver_handle) {
@@ -218,8 +218,8 @@ void* loadTurnipVulkan() {
 
     printf("\n尝试加载 Vulkan 库...\n");
     void* libvulkan = nullptr;
-    printf("尝试: linker_ns_dlopen_unique(%s, libvulkan.so)\n", cache_dir ? cache_dir : "null");
-    libvulkan = linker_ns_dlopen_unique(cache_dir, "libvulkan.so", RTLD_LOCAL | RTLD_NOW);
+    printf("尝试: linker_ns_dlopen_unique(%s, libGLES_mali.so)\n", cache_dir ? cache_dir : "null");
+    libvulkan = linker_ns_dlopen_unique(cache_dir, /*"libvulkan.so"*/"libGLES_mali.so", RTLD_GLOBAL | RTLD_NOW);
     
     if (!libvulkan) {
         printf("警告: libvulkan.so 加载失败\n");
@@ -254,14 +254,14 @@ void* loadTurnipVulkan() {
             goto commonload;
         }
     } else {
-        printf("libvulkan.so 加载成功: %p\n", libvulkan);
+        printf("libGLES_mali.so 加载成功: %p\n", libvulkan);
     }
     
     printf("\n========== 驱动加载成功 ==========\n");
-    return turnip_driver_handle;
+    return libvulkan;
 
 commonload:
-    libvulkan = dlopen(driverEnv, RTLD_LAZY | RTLD_LOCAL);
+    libvulkan = dlopen(driverEnv, RTLD_NOW | RTLD_LOCAL);
     if (libvulkan) return libvulkan;
     if(!libvulkan) return nullptr;
 }
