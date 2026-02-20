@@ -258,7 +258,7 @@ void* loadTurnipVulkan() {
     }
     
     printf("\n========== 驱动加载成功 ==========\n");
-    return libvulkan;
+    return turnip_driver_handle;
 
 commonload:
     libvulkan = dlopen(driverEnv, RTLD_LAZY | RTLD_LOCAL);
