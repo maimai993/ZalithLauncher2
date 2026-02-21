@@ -1,6 +1,7 @@
 //
 // Created by maks on 05.06.2023.
-// Modifiled by Vera-Firefly on 17.01.2025.
+// Modified by Vera-Firefly on 17.01.2025.
+// Removed ADRENO_POSSIBLE guards for SwiftShader compatibility.
 //
 #include "nsbypass.h"
 #include <dlfcn.h>
@@ -52,7 +53,7 @@ static void* find_branch_label(void* func_start) {
     int page_size = getpagesize();
     void* func_page_start = (void*)(((uintptr_t)func_start) & ~(PAGE_SIZE - 1));
     mprotect(func_page_start, PAGE_SIZE, PROT_READ | PROT_EXEC);
-    uint32_t* bl_addr = func_start;
+    uint32_t* bl_addr = (uint32_t*)func_start;
 
     while ((*bl_addr & OP_MS) != BL_OP)
     {
@@ -62,17 +63,16 @@ static void* find_branch_label(void* func_start) {
 }
 
 bool linker_ns_load(const char* lib_search_path) {
-#ifdef ADRENO_POSSIBLE
     int page_size = getpagesize();
-    loader_dlopen_t loader_dlopen = find_branch_label(&dlopen);
-    mprotect(loader_dlopen, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    loader_dlopen_t loader_dlopen = (loader_dlopen_t)find_branch_label((void*)dlopen);
+    mprotect((void*)loader_dlopen, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     void* ld_android_handle = loader_dlopen("ld-android.so", RTLD_LAZY, &dlopen);
     if (!ld_android_handle)
         return false;
 
-    android_create_namespace = dlsym(ld_android_handle, "__loader_android_create_namespace");
-    ld_android_link_namespaces_t android_link_namespaces = dlsym(ld_android_handle, "__loader_android_link_namespaces");
+    android_create_namespace = (ld_android_create_namespace_t)dlsym(ld_android_handle, "__loader_android_create_namespace");
+    ld_android_link_namespaces_t android_link_namespaces = (ld_android_link_namespaces_t)dlsym(ld_android_handle, "__loader_android_link_namespaces");
     if (!android_create_namespace || !android_link_namespaces)
     {
         dlclose(ld_android_handle);
@@ -91,27 +91,19 @@ bool linker_ns_load(const char* lib_search_path) {
 
     dlclose(ld_android_handle);
     return true;
-#else
-    return false;
-#endif
 }
 
 void* linker_ns_dlopen(const char* name, int flag) {
-#ifdef ADRENO_POSSIBLE
     android_dlextinfo dlextinfo = {
         .flags = ANDROID_DLEXT_USE_NAMESPACE,
         .library_namespace = driver_namespace
     };
     return android_dlopen_ext(name, flag, &dlextinfo);
-#else
-    return NULL;
-#endif
 }
 
 void* linker_ns_dlopen_unique(const char* tmpdir, const char* name, int flags) {
-#ifdef ADRENO_POSSIBLE
     char pathbuf[PATH_MAX];
-    static uint16_t patch_id;
+    static uint16_t patch_id = 0;  // Initialize to avoid undefined value
     int patch_fd, real_fd;
     snprintf(pathbuf, PATH_MAX, "%s/%d_p.so", tmpdir, patch_id);
     patch_fd = open(pathbuf, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
@@ -131,15 +123,14 @@ void* linker_ns_dlopen_unique(const char* tmpdir, const char* name, int flags) {
     }
 
     android_dlextinfo extinfo = {
-        .flags = ANDROID_DLEXT_USE_NAMESPACE | ANDROID_DLEXT_USE_LIBRARY_FD,
+        .flags = (uint64_t)(ANDROID_DLEXT_USE_NAMESPACE | ANDROID_DLEXT_USE_LIBRARY_FD),
         .library_fd = patch_fd,
         .library_namespace = driver_namespace
     };
     snprintf(pathbuf, PATH_MAX, "/proc/self/fd/%d", patch_fd);
-    return android_dlopen_ext(pathbuf, flags, &extinfo);
-#else
-    return NULL;
-#endif
+    void* handle = android_dlopen_ext(pathbuf, flags, &extinfo);
+    close(patch_fd);
+    return handle;
 }
 
 bool patch_elf_soname(int patchfd, int realfd, uint16_t patchid) {
@@ -150,7 +141,7 @@ bool patch_elf_soname(int patchfd, int realfd, uint16_t patchid) {
     if (ftruncate64(patchfd, realstat.st_size) == -1)
         return false;
 
-    char* target = mmap(NULL, realstat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, patchfd, 0);
+    char* target = (char*)mmap(NULL, realstat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, patchfd, 0);
     if (!target)
         return false;
 
@@ -169,7 +160,7 @@ bool patch_elf_soname(int patchfd, int realfd, uint16_t patchid) {
         if (hdr->sh_type == SHT_DYNAMIC) {
             char* strtab = target + shdr[hdr->sh_link].sh_offset;
             ELF_DYN *dynEntries = (ELF_DYN*)(target + hdr->sh_offset);
-            for (ELF_XWORD k = 0; k < (hdr->sh_size / hdr->sh_entsize);k++)
+            for (ELF_XWORD k = 0; k < (hdr->sh_size / hdr->sh_entsize); k++)
             {
                 ELF_DYN* dynEntry = &dynEntries[k];
                 if (dynEntry->d_tag == DT_SONAME)
@@ -184,5 +175,6 @@ bool patch_elf_soname(int patchfd, int realfd, uint16_t patchid) {
             }
         }
     }
+    munmap(target, realstat.st_size);
     return false;
 }
