@@ -218,8 +218,8 @@ void* loadTurnipVulkan() {
 
     printf("\n尝试加载 Vulkan 库...\n");
     void* libvulkan = nullptr;
-    printf("尝试: linker_ns_dlopen_unique(%s, libGLES_mali.so)\n", cache_dir ? cache_dir : "null");
-    libvulkan = linker_ns_dlopen_unique(cache_dir, /*"libvulkan.so"*/"libGLES_mali.so", RTLD_GLOBAL | RTLD_NOW);
+    printf("尝试: linker_ns_dlopen_unique(%s, libvulkan.so)\n", cache_dir ? cache_dir : "null");
+    libvulkan = linker_ns_dlopen_unique(cache_dir, "libvulkan.so", RTLD_GLOBAL | RTLD_NOW);
     
     if (!libvulkan) {
         printf("警告: libvulkan.so 加载失败\n");
@@ -238,12 +238,12 @@ void* loadTurnipVulkan() {
             if (!libvulkan) {
                 printf("错误: libGLES_mali.so 加载失败\n");
                 
-                snprintf(vulkan_path, sizeof(vulkan_path), "%s/libGLES_mali.so", cache_dir ? cache_dir : "/data/local/tmp");
+                snprintf(vulkan_path, sizeof(vulkan_path), "%s/libvulkan.so", cache_dir ? cache_dir : "/data/local/tmp");
                 
                 dlerror_msg = dlerror();
                 printf("  dlerror: %s\n", dlerror_msg ? dlerror_msg : "unknown");
             } else {
-                printf("libGLES_mali.so 加载成功: %p\n", libvulkan);
+                printf("libvulkan.so 加载成功: %p\n", libvulkan);
             }
         }
         
