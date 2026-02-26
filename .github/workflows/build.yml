@@ -45,6 +45,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@main
         with:
+          gradle-version: 8.13
           add-job-summary: "on-failure"
 
       - name: Build APK for ${{ matrix.arch }}
